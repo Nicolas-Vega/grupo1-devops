@@ -23,7 +23,7 @@ Vagrant.configure("2") do |config|
   # within the machine from a port on the host machine. In the example below,
   # accessing "localhost:8080" will access port 80 on the guest machine.
   # NOTE: This will enable public access to the opened port
-  config.vm.network "forwarded_port", guest: 3000, host: 8080
+  config.vm.network "forwarded_port", guest: 8080, host: 8080
   config.vm.boot_timeout = 1000
 
   # Create a forwarded port mapping which allows access to a specific port
@@ -66,13 +66,50 @@ Vagrant.configure("2") do |config|
   # documentation for more information about their specific syntax and use.
    config.vm.provision "shell", inline: <<-SHELL
 	sudo apt-get -y update
-    sudo apt-get -y install nodejs
-	sudo curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
-	sudo echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
-    sudo apt update && sudo apt -y install yarn
-	sudo git clone https://github.com/Nicolas-Vega/grupo1-devops-app.git;
-	cd grupo1-devops-app
-	sudo yarn
-	sudo yarn start
+  #Desintalo el servidor web instalado previamente en la unidad 1,
+  # a partir de ahora va a estar en un contenedor de Docker.
+  if [ -x "$(command -v apache2)" ];then
+   sudo apt-get remove --purge apache2 -y
+   sudo apt autoremove -y
+  fi
+
+  # Directorio para los archivos de la base de datos MySQL. El servidor de la base de datos
+  # es instalado mediante una imagen de Docker. Esto está definido en el archivo
+  # docker-compose.yml
+  if [ ! -d "/var/db/mysql" ]; then
+          sudo mkdir -p /var/db/mysql
+  fi
+
+  ######## Instalacion de DOCKER ########
+  #
+  # Esta instalación de docker es para demostrar el aprovisionamiento
+  # complejo mediante Vagrant. La herramienta Vagrant por si misma permite
+  # un aprovisionamiento de container mediante el archivo Vagrantfile. A fines
+  # del ejemplo que se desea mostrar en esta unidad que es la instalación mediante paquetes del
+  # software Docker este ejemplo es suficiente, para un uso más avanzado de Vagrant
+  # se puede consultar la documentación oficial en https://www.vagrantup.com
+  #
+  if [ ! -x "$(command -v docker)" ]; then
+          sudo apt-get install -y apt-transport-https ca-certificates curl software-properties-common
+        ##Configuramos el repositorio
+        curl -fsSL "https://download.docker.com/linux/ubuntu/gpg" > /tmp/docker_gpg
+        sudo apt-key add < /tmp/docker_gpg && sudo rm -f /tmp/docker_gpg
+        sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu $(lsb_release -cs) stable"
+        #Actualizo los paquetes con los nuevos repositorios
+        sudo apt-get update -y
+        #Instalo docker desde el repositorio oficial
+        sudo apt-get install -y docker-ce docker-compose
+        #Lo configuro para que inicie en el arranque
+        sudo systemctl enable docker
+  fi
+
+#    sudo apt-get -y install nodejs
+#	sudo curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
+#	sudo echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
+#    sudo apt update && sudo apt -y install yarn
+#	sudo git clone https://github.com/Nicolas-Vega/grupo1-devops-app.git;
+#	cd grupo1-devops-app
+#	sudo yarn
+#	sudo yarn start
    SHELL
 end

@@ -1,0 +1,30 @@
+version: '2'
+services:
+  jhipster:
+    container_name: jhipster
+    build: .
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+      DB-HOST: MYSQL
+      SPRING_DATASOURCE_URL: jdbc:mysql://db_server/jhipster?createDatabaseIfNotExist=true
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SPRING_DATASOURCE_DRIVER-CLASS-NAME: com.mysql.jdbc.Driver
+      SPRING_JPA_DATABASE-PLATFORM: org.hibernate.dialect.MySQL5InnoDBDialect
+      SPRING_JPA_HIBERNATE_LEGACY_LIMIT_HANDLER: 'true'
+      SPRING_JPA_DATABASE: MYSQL
+    ports:
+      - "8080:8080" 
+    depends_on:
+      - db_server
+  db_server:
+    image: mysql:5.7
+    container_name: mysql
+    environment:
+      - MYSQL_DATABASE=devops_app #creará una base de datos con ese nombre
+      - MYSQL_ROOT_PASSWORD=root #clave de administrador del servidor MySQL
+    ports:
+      - "4400:3306"
+    volumes:
+      - /var/db/mysql:/var/lib/mysql
+      - "./configs/mysql/script.sql:/tmp/script.sql"
