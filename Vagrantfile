@@ -103,6 +103,10 @@ Vagrant.configure("2") do |config|
         sudo systemctl enable docker
   fi
 
+# Voy a la carpeta de docker y levanto ambos dockers
+    cd /vagrant/docker
+    sudo docker-compose up -d
+
 #    sudo apt-get -y install nodejs
 #	sudo curl -sS https://dl.yarnpkg.com/debian/pubkey.gpg | sudo apt-key add -
 #	sudo echo "deb https://dl.yarnpkg.com/debian/ stable main" | sudo tee /etc/apt/sources.list.d/yarn.list
