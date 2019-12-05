@@ -186,8 +186,19 @@ sudo puppet agent --certname utn-devops.localhost --enable
 # la alternativa es hacer un vagrant ssh y ejecutar los siguientes comandos
 # a mano
 ############################################################################
+sudo puppet agent -t --debug
+sudo puppet cert sign utn-devops.localhost
 #sudo puppet agent -t --debug
-#sudo puppet cert sign utn-devops.localhost
-#sudo puppet agent -t --debug
-   SHELL
+SHELL
+
+# trigger reload
+config.vm.provision :reload
+
+# execute code after reload
+config.vm.provision "shell", inline: <<-SHELL
+ sudo puppet agent -t --debug
+SHELL
+
 end
+   
+
