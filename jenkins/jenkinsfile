@@ -1,0 +1,22 @@
+pipeline {
+    agent any
+
+    environment {
+        CI = 'CI'
+    }
+    
+    tools {nodejs "node"}
+
+    stages {
+        stage('Install') {
+            steps {
+                sh 'cd grupo1-devops-app && npm --logevel=error install'
+            }
+        }
+        stage('Test') {
+            steps {
+                sh 'cd grupo1-devops-app && npm test'
+            }
+        }
+    }
+}
